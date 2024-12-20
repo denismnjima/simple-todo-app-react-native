@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput,Pressable,ScrollView} from 'react-native';
 import { useState } from 'react';
+import ListItem from './components/ListItem';
 
 export default function App() {
   const [todoList, setTodoList] = useState([]);
@@ -17,23 +18,20 @@ export default function App() {
       <Text style={styles.topBarText}> Todo List</Text>
 
       <View>
-        <TextInput placeholder="Enter your task" style={styles.todoInput} value={task} onChange={setTask}/>
+        <TextInput placeholder="Enter your task" style={styles.todoInput} value={task} onChangeText={setTask}/>
         <Pressable onPress={addTask}>
           <Text style={styles.addTodoButton}> Add Task</Text>
         </Pressable>
 
         <ScrollView>
           <View style={styles.todoListContainer}>
+            {
+              todoList.map((item, index) => {
+                return <ListItem task={item} key={index}/>
+            }
+          )
+        }
 
-            <View style={styles.todoItem}>
-              <Text> Task 1</Text>
-              {/* <Pressable>
-                <Text> Delete</Text>
-              </Pressable> */}
-              <Pressable>
-                <Text> Done</Text>
-              </Pressable>
-              </View>
           </View>
         
         </ScrollView>
