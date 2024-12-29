@@ -1,17 +1,70 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput,Pressable,ScrollView} from 'react-native';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import ListItem from './components/ListItem';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
   const [todoList, setTodoList] = useState([]);
   const [task, setTask] = useState('');
 
-  const addTask = () => {
-    setTodoList([...todoList, task]);
-    setTask('');
-    console.log(todoList);
+
+  const storeData = async (key,value)=>{
+    try{
+      let valueStringified = JSON.stringify(value)
+      await AsyncStorage.setItem(key,valueStringified)
+    }
+    catch(error){
+      console.error(error);
+    }
   }
+
+  const getData = async (key)=>{
+    try {
+      let Data =  await AsyncStorage.getItem(key);
+      console.log(Data);
+      if(Data !== null){
+        Data = JSON.parse(Data);
+        return Data
+
+      }
+      else{
+        return []
+      }
+      
+    } catch (error) {
+      console.error(error)
+      return [];
+      
+    }
+  }
+
+  const addTask = async () => {
+    try {
+      const TodoListData = await getData('tasks');
+      const updatedList = [...TodoListData, task];
+      await storeData('tasks', updatedList); // Wait for storeData to complete
+      setTask('');
+      fetchData(); // Fetch new data
+    } catch (err) {
+      console.error('Error adding task:', err);
+    }
+  };
+  
+
+  const fetchData = async () => {
+    try {
+      const todoList = await getData('tasks');
+      setTodoList(todoList); // Update the state with fetched tasks
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchData()
+    
+  },[])
   return (
     <View style={styles.mainWrapper}>
       <StatusBar style="auto"  backgroundColor='orange'/>
